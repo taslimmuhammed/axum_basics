@@ -1,3 +1,3 @@
-pub async fn hello_world() -> String{
-    String::from("hello world from file")
+pub async fn hello_world(body:String) -> String{
+    body
 }
