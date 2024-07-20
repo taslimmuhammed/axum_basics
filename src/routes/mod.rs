@@ -3,9 +3,10 @@ mod mirror_json;
 mod get_path;
 mod query;
 mod header;
-
+mod middleware_headers;
+mod middleware_route;
 use axum::{
-    http::Method, routing::{get, post}, Router
+    http::Method, middleware, routing::{get, post}, Router
 };
 use tower_http::cors::{Any, CorsLayer};
 use hello_world::hello_world;
@@ -13,15 +14,18 @@ use mirror_json::mirror_json;
 use get_path::get_path;
 use query::query;
 use header::header;
-
+use middleware_headers::auth;
+use middleware_route::middleware_route;
 pub fn create_routes()->Router{
     let cors  = CorsLayer::new().allow_methods([Method::GET, Method::POST]).allow_origin(Any);
-    let mut app = Router::new();
-    app = app.route("/", get(hello_world));
-    app = app.route("/mirror_json", post(mirror_json));
-    app = app.route("/path/:id/hello", get(get_path));
-    app = app.route("/query", get(query));
-    app = app.route("/header", get(header));
-    app = app.layer(cors);
+    let app = Router::new()
+        .route("/middleware", get(middleware_route))
+        .layer(middleware::from_fn(auth))
+        .route("/", get(hello_world))
+        .route("/mirror_json", post(mirror_json))
+        .route("/path/:id/hello", get(get_path))
+        .route("/query", get(query))
+        .route("/header", get(header))
+        .layer(cors);
     app
 }
