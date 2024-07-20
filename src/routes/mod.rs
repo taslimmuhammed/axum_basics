@@ -5,6 +5,7 @@ mod query;
 mod header;
 mod middleware_headers;
 mod middleware_route;
+mod returns_201;
 use axum::{
     http::Method, middleware, routing::{get, post}, Router
 };
@@ -16,6 +17,8 @@ use query::query;
 use header::header;
 use middleware_headers::auth;
 use middleware_route::middleware_route;
+use returns_201::returns_201;
+
 pub fn create_routes()->Router{
     let cors  = CorsLayer::new().allow_methods([Method::GET, Method::POST]).allow_origin(Any);
     let app = Router::new()
@@ -26,6 +29,7 @@ pub fn create_routes()->Router{
         .route("/path/:id/hello", get(get_path))
         .route("/query", get(query))
         .route("/header", get(header))
+        .route("/returns_201", get(returns_201))
         .layer(cors);
     app
 }
